@@ -37,19 +37,21 @@ const addContact = async (req, res, next) => {
     next(error);
   }
 };
-const deleteContact = async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    const result = await Contact.findByIdAndDelete(contactId);
-    if (!result) {
-      res.status(404).json({ message: "Not found" });
-    }
-      res.status(200).json(result);
-    }   catch (error) {
-      next(error);
-     }
-    return result;
-};
+  const deleteContact = async (req, res, next) => {
+    try {
+      const { contactId } = req.params;// Get contactId from request parameters
+      const result = await Contact.findByIdAndDelete(contactId);// Attempt to delete the contact
+      if (!result) {
+        // If no contact was found and deleted, return a 404 status
+        return res.status(404).json({ message: "Not found" });
+      }
+      // If successful, return the deleted contact
+        return res.status(200).json(result);
+      }   catch (error) {
+          // Pass the error to the next middleware (error handler)
+        next(error);
+      }
+  };
 const updateContact = async (req, res, next) => {
   const { error } = contactValidation.validate(req.body);
 
