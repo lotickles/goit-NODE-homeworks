@@ -1,25 +1,34 @@
-const express = require('express')
-const logger = require('morgan')
-const cors = require('cors')
+import express from "express";
+import logger from "morgan";
+import cors from "cors";
+import { router as contactsRouter } from "./routes/api/contactsRouter.js";
 
-const contactsRouter = require('./routes/api/contacts')
+//initialize an express application
+const app = express();
+const formatsLogger = app.get("env") === "development" ? "dev" : "short";
+app.use(logger(formatsLogger));
+app.use(cors());
+app.use(express.json());
 
-const app = express()
+// initialize the base path for the contacts router
+//http://localhost:3000/contacts
+app.use("/api/contacts", contactsRouter);
 
-const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short'
+// error handling using res.status()
+app.use((_req, res) => {
+  res.status(404).json({ message: "Not found" });
+});
 
-app.use(logger(formatsLogger))
-app.use(cors())
-app.use(express.json())
+//server error
+app.use((err, _req, res, _next) => {
+  res.status(500).json({ message: err.message });
+});
 
-app.use('/api/contacts', contactsRouter)
+export { app };
 
-app.use((req, res) => {
-  res.status(404).json({ message: 'Not found' })
-})
-
-app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message })
-})
-
-module.exports = app
+// IMPORT MODULES
+// IMPORT ENVIRONMENT VARIABLES
+// IMPORT AND USE MIDDLEWARES
+// INITIALIZE BASE PATH FOR ROUTER
+// ADD ERROR HANDLING
+// EXPORT MODULE

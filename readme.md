@@ -12,3 +12,4 @@ Forking will create a repository on your http://github.com account.
 - `npm run start:dev` &mdash; starts the server in development mode.
 - `npm run lint` &mdash; runs eslint to check the code. Make sure to execute this before each PR and fix all linting errors.
 - `npm lint:fix` &mdash; same as the previous command but fixes simple linting errors automatically.
+
