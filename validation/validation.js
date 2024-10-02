@@ -39,5 +39,4 @@ const subscriptionValidation = joi.object({
   subscription:joi.string().valid("starter","pro","business"),
 })
 
-
 export { contactValidation,favoriteValidation,signupValidation,subscriptionValidation };

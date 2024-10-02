@@ -1,36 +1,38 @@
 import {User} from "../models/userModel.js";
-import {signupValidation} from "../validation/validation.js"
+import {signupValidation,subscriptionValidation} from "../validation/validation.js"
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 
-
+// Sign up User
 const signupUser =async(req,res)=>{
   const {error} = signupValidation.validate(req.body);
 
   //Registration validation error
   if(error){
-    res.status(400).json({message: "missing required email or password fields"});
+    res.status(400).json({message: "Missing required email or password fields"});
   }
   try {
     const {email,password} = req.body
-  
     const userExists = await User.findOne({email});
+
   //Registration conflict error
     if(userExists){
-      return res.status(409).json({message: "email in use"});
+      return res.status(409).json({message: "Email in use"});
     }
     // Hash the password
     const saltRounds = 10; // You can adjust the number of salt rounds
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    //Registration success response
+
+  
     // Store the user with the hashed password in your database
     const newUser = await User.create({ email, password: hashedPassword });
 
+      //Registration success response
     res.status(201).json({
       user:{
         email:newUser.email,
-        password:newUser.password,//optional
+        // password: newUser.password, // Optional, not recommended for security reasons
       },
     });
   } catch (error) {
@@ -39,18 +41,14 @@ const signupUser =async(req,res)=>{
   }
 };
 //loginuser
-//1.validate request using joi
-//2. validate if email is existing
-//3.if email exist -compare or decryptthe hashedpassword to the password
-//4. if decryption is sucesseful , we will generate a token to the user
-//the user will apply the token as an authentication for all future request
+
 
 const loginUser = async(req,res)=>{
   const {error} = signupValidation.validate(req.body);
 
-  //reg. validation error
+  //Validation error
   if(error){
-    res.status(400).json({message: "missing required email or password fields"});
+    res.status(400).json({message: "Missing required email or password fields"});
   }
   try{
     const {email,password} = req.body;
@@ -65,17 +63,20 @@ const loginUser = async(req,res)=>{
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials,Click forgot password to reset", });
     }
+    // Generate a token
     //_id is coming from MongoDb Compass
     //id is from JWT
-    const payload = {id:userExists._id, email}
+    const payload = {id: userExists._id, email}
     const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '23h' });
 
     await User.findByIdAndUpdate(userExists._id, { token });
+
     res.status(200).json({
-      token: token,
+    token, // Return the token to the client
       user: {
-        email: userExists.email,
+        email: userExists.email, // Include the user's email in the response
       },
+        subscription: userExists.subscription,
     });
 
   } catch {error}{
@@ -95,15 +96,46 @@ const logoutUser = async(req,res)=>{
 };
 const getCurrentUser =async(req,res) =>{
   try {
-    const { email, } = req.user;
+    const { email,subscription  } = req.user;
     res.json({
       email,
+      subscription,
     });
   } catch (error) {
     res.status(500).json({ message: err.message });
   }
 };
+const updateUserSubscription = async (req, res) => {
+  try {
+    const { error } = subscriptionValidation.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+  // Update the user's subscription
+    const { _id } = req.user;
+    const updatedUser = await User.findByIdAndUpdate(_id, req.body, {
+      new: true,
+    });
 
-
+    res.json({
+      email: updatedUser.email,
+      subscription: updatedUser.subscription,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 // MVC Architecture
-export {signupUser, loginUser, logoutUser, getCurrentUser};
+export {
+  signupUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser,
+  updateUserSubscription,
+};
+
+//1.validate request using joi
+//2. validate if email is existing
+//3.if email exist -compare or decryptthe hashedpassword to the password
+//4. if decryption is sucesseful , we will generate a token to the user
+//the user will apply the token as an authentication for all future request
