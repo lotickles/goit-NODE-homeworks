@@ -1,5 +1,7 @@
-import { Contact } from "../../../models/contactsModel.js";
-import {contactValidation, favoriteValidation} from "../../../validation/validation.js"
+//mongoose connection
+//mvC-controller
+import { Contact } from "../models/contactsModel.js"
+import {contactValidation, favoriteValidation} from "../validation/validation.js"
 
 
 //MVC Architecture 
