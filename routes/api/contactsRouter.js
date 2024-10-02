@@ -4,7 +4,8 @@ import {
   getContactById,
   addContact,
   deleteContact,
-  updateContact,} from "./controllers/contactControllers.js"
+  updateContact,
+  updateStatusContact} from "./controllers/contactControllers.js"
 
 
 const router = express.Router();
@@ -34,6 +35,6 @@ router.delete("/:contactId",deleteContact);
 router.put("/:contactId",  updateContact);
 
 //patch -favorite
-router.patch("/:contactId/favorite",updateContact);
+router.patch("/:contactId/favorite",updateStatusContact);
 
 export { router };

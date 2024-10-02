@@ -5,8 +5,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const {DB_HOST} = process.env;
-mongoose.connect(DB_HOST,{
-})
+
+mongoose.connect(DB_HOST)
 .then(() => {
   app.listen(3000,() =>{
     console.log("Server is running on port 3000");
