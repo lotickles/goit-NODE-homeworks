@@ -19,14 +19,16 @@ const userSchema = new Schema({
   token: {
     type: String,
     default: null,
+    },
   },
-})
+  { versionKey: false }
+);
 
-const User = mongoose.model("user",userSchema);
+const User = model("user",userSchema);
 
 export {User};
 
-//MVC creation pattern
+//MVC creation
 //1. model View
 //2.router
 //3.controller
