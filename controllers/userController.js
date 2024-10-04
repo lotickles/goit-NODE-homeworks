@@ -1,9 +1,11 @@
-import {User} from "../models/userModel.js";
+
 import {signupValidation,subscriptionValidation} from "../validation/validation.js"
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
+import {User} from "../models/usersModel.js";
 
+const {SECRET_KEY} = process.env;
 // Sign up User
 const signupUser =async(req,res)=>{
   const {error} = signupValidation.validate(req.body);
@@ -32,6 +34,7 @@ const signupUser =async(req,res)=>{
     res.status(201).json({
       user:{
         email:newUser.email,
+        subscription: newUser.subscription,
         // password: newUser.password, // Optional, not recommended for security reasons
       },
     });
@@ -67,7 +70,7 @@ const loginUser = async(req,res)=>{
     //_id is coming from MongoDb Compass
     //id is from JWT
     const payload = {id: userExists._id, email}
-    const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '23h' });
+    const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '23h' });
 
     await User.findByIdAndUpdate(userExists._id, { token });
 

@@ -7,15 +7,12 @@ const { SECRET_KEY } = process.env;
 const authenticateToken = async (req, res, next) => {
   const { authorization = "" } = req.headers;
 
-
   const [bearer, token] = authorization.split(" ");
-  // bearer = Bearer
-  // token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZTJlMmY0OTVkYzE2YTQ2NTU4ZTUzNiIsImlhdCI6MTcyNjE0ODQyNywiZXhwIjoxNzI2MjMxMjI3fQ.dnIUsctml9szpJfCpCQ6BMAfynhyN_V3vDsxZaL9UQg
 
   // Check if the bearer token is provided and valid
   if (bearer !== "Bearer" || !token) {
     console.log("Invalid authorization format or missing token");
-    return res.status(401).json({ message: "Not authorized" });
+    return res.status(401).json({ message: "Not authorized" }); // Early return to prevent further execution
   }
 
   try {
@@ -28,17 +25,17 @@ const authenticateToken = async (req, res, next) => {
     const user = await User.findById(id);
     if (!user || user.token !== token || !user.token) {
       console.log("User not found or token mismatch");
-      return res.status(401).json({ message: "Not authorized" });
+      return res.status(401).json({ message: "Not authorized" }); // Early return to prevent further execution
     }
 
     // Attach the user to the request object and continue
     req.user = user;
     console.log("User authenticated successfully:", user.email);
-    next();
+    next(); // Only call next() if no response has been sent
   } catch (err) {
     console.log("Error verifying token:", err.message);
     // Handle any token verification errors
-    return res.status(401).json({ message: "Not authorized" });
+    return res.status(401).json({ message: "Not authorized" }); // Early return to prevent further execution
   }
 };
 

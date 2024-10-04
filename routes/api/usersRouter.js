@@ -5,15 +5,15 @@ import {
   loginUser,
   logoutUser,
   getCurrentUser,
-} from "./../../controllers/userController.js"
-import authenticateToken from "../../middlewares/auth.js";
+} from "./../../controllers/userController.js";
+import {authenticateToken} from "../../middlewares/auth.js";
 
 const router =express.Router();
 
-router.post("/users/signup",signupUser);
-router.post("/users/login",loginUser);
-router.get("user/logout",logoutUser);
-router.get("user/current",authenticateToken,getCurrentUser);
-router.patch('/subscription',authenticateToken, updateUserSubscription); // authenticate is middleware for user auth
+router.post("/signup",signupUser);
+router.post("/login",loginUser);
+router.get("/logout", logoutUser);
+router.get("/current",authenticateToken,getCurrentUser);
+router.patch("/", authenticateToken, updateUserSubscription); // authenticate is middleware for user auth
 
 export {router};
