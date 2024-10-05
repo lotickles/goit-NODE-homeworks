@@ -17,5 +17,6 @@ router.get("/logout", logoutUser);
 router.get("/current",authenticateToken,getCurrentUser);
 router.patch("/", authenticateToken, updateUserSubscription); // authenticate is middleware for user auth
 router.patch("/avatars",authenticateToken,upload.single("avatar"),updateAvatar);
+//route,authentication,middleware upload and single function of multer to restrict to one field ("fieldname"),controller
 
 export {router};

@@ -1,9 +1,7 @@
 import multer from "multer";
 import path from "path";
 
-// create a constant to access the directory path of the temp folder
-// the temp folder will hold the images that are uploaded but not yet sent to the server for database persistence
-const tempPath = path.join("tmp");
+const tempPath = path.join("tmp");//temp folder-
 
 // create a multer config to set the destination and file name of the files being uploaded
 // accepts two parameters: first is the destination of the file uploaded
