@@ -18,8 +18,8 @@ const multerConfig = multer.diskStorage({
 });
 
 // declare or create the actual middleware function
-const upload = multer({
-  storage: multerConfig,
-});
+// const upload = multer({
+//   storage: multerConfig,
+const upload = multer({ dest: 'tmp/' });
 
 export { upload };

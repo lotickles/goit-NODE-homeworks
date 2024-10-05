@@ -4,9 +4,10 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
 import {User} from "../models/usersModel.js";
-import gravatar from "gravatar";
-// import path from "path";
-
+import gravatar from "gravatar";//avatars
+import path from "path";//for url path
+import {Jimp} from "jimp";//image processing and manipulation//resizing
+import fs from "fs/promises";
 
 const {SECRET_KEY} = process.env;
 // Sign up User
@@ -147,19 +148,19 @@ const updateAvatar = async (req, res) => {
     // we are saving the updated resolution to the old temporary path
     await Jimp.read(oldPath)
       .then((image) => {
-        console.log("Resizing image"); // Debug log
+        // console.log("Resizing image"); // Debug log
         image.resize({ w: 250, h: 250 }).write(oldPath);
-        console.log("Image resized and saved to:", oldPath); // Debug log
+        // console.log("Image resized and saved to:", oldPath); // Debug log
       })
       .catch((error) => console.log(error));
 
     // Move the user's avatar from the tmp folder to the public/avatars folder and give it a unique name for the specific user
     // the unique file name that we will generate is a concatenated version of the id of the user document and the extension of the original image file.
 
-    // 66e576387fdc812acc32be53.webp
+
     const extension = path.extname(originalname);
-    const filename = `${_id}${extension}`;
-    console.log("Generated Filename:", filename); // Debug log
+    const filename = `${_id}${extension}`;     // 66e576387fdc812acc32be53.webp
+    // console.log("Generated Filename:", filename); // Debug log
 
     // call the file system rename path function
     const newPath = path.join("public", "avatars", filename);
@@ -176,7 +177,7 @@ const updateAvatar = async (req, res) => {
 
     // save the newly generated avatar in the database and the public folder
     await User.findByIdAndUpdate(_id, { avatarURL });
-    console.log("Avatar URL saved to the database"); // Debug log
+    // console.log("Avatar URL saved to the database"); // Debug log
 
     res.status(200).json({ avatarURL });
   } catch (error) {

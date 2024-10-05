@@ -1,29 +1,26 @@
-import joi from "joi";
-//JOI VALIDATION
-//validates the data before sending it as the request body to a server rout or endpoint
-//this happend before the network request
-const contactValidation = joi.object({
-  name: joi.string().required(),
-  email: joi.string().required(),
-  phone: joi.string().required(),
+import Joi from "joi";
+
+//validates the data before sending it as the request body to a server route or endpoint
+//this happened before the network request
+const contactValidation = Joi.object({
+  name: Joi.string().required(),
+  email: Joi.string().required(),
+  phone: Joi.string().required(),
 })
 // Define validation for updating favorite field
-const favoriteValidation = joi.object({
-  favorite: joi.bool().required(),
+const favoriteValidation = Joi.object({
+  favorite: Joi.bool().required(),
 });
-// const userValidation = joi.object({
-//   email: joi.string().required(),
-//   password: joi.string().required(),
-//   subscription: joi.string().valid("starter", "pro", "business").required(),
-// })
-const signupValidation = joi.object ({
-  email: joi.string()
-  .email({minDomainSegments:2,tlds:{allow:["com","net"]}})
-  .required().messages({
-  'string.email': `"email" must be a valid email address`,
-  'any.required': `"email" is a required field`
+// validation for signup
+const signupValidation = Joi.object ({
+  email: Joi.string()
+  .email({minDomainSegments:2,tlds:{allow:["com","net"]}})//tlds top-level-domain
+  .required()
+  .messages({
+    "any.required": "Missing required email field",
+    "string.email": "Invalid email format",
 }),
-password: joi.string()
+password: Joi.string()
   .min(6)
   .max(16)
   .required()
@@ -35,8 +32,8 @@ password: joi.string()
     'any.required': `"password" is a required field`
   }),
 })
-const subscriptionValidation = joi.object({
-  subscription:joi.string().valid("starter","pro","business"),
+const subscriptionValidation = Joi.object({
+  subscription:Joi.string().valid("starter","pro","business"),
 })
 
 export { contactValidation,favoriteValidation,signupValidation,subscriptionValidation };
