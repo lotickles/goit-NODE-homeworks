@@ -6,10 +6,8 @@ import { app } from "../app";
 import jwt from "jsonwebtoken";
 
 describe("Test @POST /api/users/login", () => {
-  // mocking a function is to make sure that the coverage of the testing is only the function that we have written as opposed to including the dependencies
 
-  // let us mock the external functions from other libraries
-
+//to make sure that we only test the functions under its coverage(excluded the 3rd party functions/library)
   const mockSignInData = {
     // this is mocking the request body that we are sending to the signup and login route
     email: "testuser05@example.com",

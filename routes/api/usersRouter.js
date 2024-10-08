@@ -20,6 +20,8 @@ const router = express.Router();
 router.post("/signup", signupUser);  // POST: http://localhost:4000/api/users/signup
 
 // Log in user4000/api/users/login
+router.post("/login", loginUser);
+
 
 // Log out user
 router.get("/logout", authenticateToken, logoutUser);  // GET: http://localhost:4000/api/users/logout
