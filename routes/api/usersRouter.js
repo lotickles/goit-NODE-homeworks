@@ -3,7 +3,7 @@ import {
   signupUser,
   loginUser,
   logoutUser,
-  getCurrentUsers,
+  getCurrentUser,
   updateUserSubscription,
   updateAvatar, 
   verifyEmail,
@@ -27,7 +27,7 @@ router.post("/login", loginUser);
 router.get("/logout", authenticateToken, logoutUser);  // GET: http://localhost:4000/api/users/logout
 
 // Get current user
-router.get("/current", authenticateToken, getCurrentUsers);  // GET: http://localhost:4000/api/users/current
+router.get("/current", authenticateToken, getCurrentUser);  // GET: http://localhost:4000/api/users/current
 
 // Update user subscription
 router.patch("/", authenticateToken, updateUserSubscription);  // PATCH: http://localhost:4000/api/users

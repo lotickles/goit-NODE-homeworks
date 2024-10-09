@@ -61,12 +61,12 @@ const loginUser = async(req,res)=>{
     if (error) {
       return res.status(401).json({ message: error.message });
     }
-
+     // Login auth error (email)
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Email or password is wrong" });
     }
-
+    // Login auth error (password)
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Email or password is wrong" });
@@ -78,6 +78,7 @@ const loginUser = async(req,res)=>{
 
     await User.findByIdAndUpdate(user._id, { token });
 
+     //   Login success response
     res.status(200).json({
       token: token,
       user: {
@@ -99,7 +100,7 @@ const logoutUser = async(req,res)=>{
     res.status(500).json({ message: err.message });
   }
 };
-const getCurrentUsers =async(req,res) =>{
+const getCurrentUser =async(req,res) =>{
   try {
     const { email,subscription  } = req.user;
     res.json({
@@ -131,26 +132,68 @@ const updateUserSubscription = async (req, res) => {
   }
 };
 const updateAvatar = async (req, res) => {
-  const { _id } = req.user;
-  const { path: oldPath, originalname } = req.file;
+  try {
+    // access the authentication token through the req.user
+    const { _id } = req.user;
+    console.log("User ID:", _id); // Debug log
 
-  await Jimp.read(oldPath).then((image) =>
-    // image.resize(250, 250).write(oldPath)
-    image.cover(250, 250).write(oldPath)
-  );
+    // uploaded avatar is accessed through the req.file
+    if (!req.file) {
+      console.error("No file uploaded");
+      return res.status(400).json({ message: "No file uploaded" });
+    }
 
-  const extension = path.extname(originalname);
-  const filename = `${_id}${extension}`;
+    // request body is the request that supports this content type: application/json, text/html
+    // request file is the request that supports this content type: Content-Type: image/jpeg, multipart/form-data
+    const { path: oldPath, originalname } = req.file;
+    console.log("File Path:", oldPath, "Original Filename:", originalname); // Debug log
 
-  const newPath = path.join("public", "avatars", filename);
-  await fs.rename(oldPath, newPath);
 
-  let avatarURL = path.join("/avatars", filename);
-  avatarURL = avatarURL.replace(/\\/g, "/");
 
-  await User.findByIdAndUpdate(_id, { avatarURL });
-  res.status(200).json({ avatarURL });
-}
+    // Move the user's avatar from the tmp folder to the public/avatars folder and give it a unique name for the specific user
+    // the unique file name that we will generate is a concatenated version of the id of the user document and the extension of the original image file.
+
+    // 66e576387fdc812acc32be53.webp
+    const extension = path.extname(originalname);
+    const filename = `${_id}${extension}`;
+    console.log("Generated Filename:", filename); // Debug log
+
+    // call the file system rename path function
+    const newPath = path.join("public", "avatars", filename);
+    // public/avatars/66e576387fdc812acc32be53.jpeg
+    // await fs.rm(newPath);
+
+    // we are reading the image from the temporary path
+    // we are resizing the image to 250px width and 250px height
+    // we are saving the updated resolution to the old temporary path
+    try {
+      const image = await Jimp.read(oldPath)
+      console.log("Resizing image"); // Debug log
+      await image.resize({ w: 250, h: 250 }).write(newPath);
+      console.log("Image resized and saved to:", oldPath); // Debug log
+      fs.rm(oldPath)
+    } catch(e) {
+      console.log(e)
+    }
+
+    // construct a new avatar URL
+    // this may not work directly if you are using a windows OS
+    const avatarURL = path.join("/avatars", filename).replace(/\\/g, "/");
+
+    // you may try this for a windows ecosystem
+    // let avatarURL = path.join("/avatars", filename);
+    // avatarURL = avatarURL.replace(/\\/g, "/");
+
+    // save the newly generated avatar in the database and the public folder
+    await User.findByIdAndUpdate(_id, { avatarURL });
+    console.log("Avatar URL saved to the database"); // Debug log
+
+    res.status(200).json({ avatarURL });
+  } catch (error) {
+    console.error("Error in updateAvatar:", error); // Debug log
+    res.status(500).json({ message: error.message });
+  }
+};
 const verifyEmail = async (req, res) => {
   const { verificationToken } = req.params;
 
@@ -220,7 +263,7 @@ export {
   signupUser,
   loginUser,
   logoutUser,
-  getCurrentUsers,
+  getCurrentUser,
   updateUserSubscription,
   updateAvatar,
   verifyEmail,
