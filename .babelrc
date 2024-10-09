@@ -1,0 +1,12 @@
+{
+  "presets": [
+    "@babel/preset-env"
+  ]
+}
+
+// is part of a Babel configuration file, typically found in a file like babel.config.json, .babelrc, or inside the package.json under a babel section. This configuration is used by Babel, a JavaScript compiler, to transpile modern JavaScript code into a version that's compatible with older browsers or environments that may not support the latest JavaScript features.
+// presets:
+// This key defines a set of plugins and configurations that Babel will use to transform your code. Presets are essentially bundles of Babel plugins grouped together to handle different types of JavaScript transformations.
+
+// @babel/preset-env:
+// This is one of the most commonly used Babel presets. It allows you to compile modern JavaScript (ES6+ or ECMAScript 2015+) down to a version of JavaScript that can run in older browsers or environments. It does this intelligently by only including the necessary polyfills and transformations based on your target environment (such as the browsers you want to support).
