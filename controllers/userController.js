@@ -1,5 +1,5 @@
 
-import {signupValidation,subscriptionValidation} from "../validation/validation.js"
+import {signupValidation,subscriptionValidation,emailValidation} from "../validation/validation.js"
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import jwt from "jsonwebtoken";
@@ -8,6 +8,7 @@ import gravatar from "gravatar";//avatars
 import path from "path";//for url path
 import {Jimp} from "jimp";//image processing and manipulation//resizing
 import fs from "fs/promises";
+import { nanoid } from "nanoid";
 
 const {SECRET_KEY} = process.env;
 // Sign up User
@@ -30,12 +31,22 @@ const signupUser =async(req,res)=>{
 //2 param email, object containing protocol:"https"
 //avatar -placeholder only when user signs in
   const avatarURL= gravatar.url(email,{protocol:"http"});
+  
+  const verificationToken = nanoid();
+
+  // ADDITIONALLY, UPON SIGNUP, THE NODEMAILER MUST SEND A VERIFICATION EMAIL TO THE EMAIL BEING SIGNED UP
+  // Send an email to the user's mail and specify a link to verify the email (/users/verify/:verificationToken) in the message
+  await sendEmail({
+    to: email, // recipient
+    subject: "Action Required: Verify Your Email",
+    html: `<a target="_blank" href="http://localhost:${PORT}/api/users/verify/${verificationToken}">Click to verify email</a>`,
+  });
 
     // Store the user with the hashed password in your database
     const newUser = await User.create({ 
       email, 
       password: hashedPassword,
-    avatarURL, 
+    avatarURL, verificationToken,
   });
 
       //Registration success response
@@ -44,6 +55,7 @@ const signupUser =async(req,res)=>{
         email:newUser.email,
         subscription: newUser.subscription,
         avatarURL: newUser.avatarURL,
+        verificationToken,
       },
     });
   } catch (error) {
@@ -192,8 +204,71 @@ const updateAvatar = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+const verifyEmail = async (req,res) =>{
+  const {verificationToken} =req.params;
+  try {
+    const user = await User.findOne({ verificationToken });
 
-// MVC Architecture
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "User not found! Please try again. " });
+    }
+
+    await User.findByIdAndUpdate(user._id, {
+      verify: true,
+      verificationToken: null,
+    });
+
+    res.status(200).json({
+      message: "Verification successful",
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error happened. " });
+  }
+};
+
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+
+  // Resending email validation error
+  const { error } = emailValidation.validate(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.message });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    // Email not found
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "The provided email address could not be found" });
+    }
+
+    // Resend email for verified user
+    if (user.verify) {
+      return res
+        .status(400)
+        .json({ message: "Verification has already been passed" });
+    }
+
+    await sendEmail({
+      to: email,
+      subject: "Action Required: Verify Your Email",
+      html: `<a target="_blank" href="http://localhost:${PORT}/api/users/verify/${user.verificationToken}">Click to verify email</a>`,
+    });
+
+    // Resending a email success response
+    res.status(200).json({ message: "Verification email sent" });
+  } catch (error) {
+    // Internal server error handling
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
 export {
   signupUser,
   loginUser,
@@ -201,6 +276,8 @@ export {
   getCurrentUser,
   updateUserSubscription,
   updateAvatar,
+  verifyEmail,
+  resendVerifyEmail,
 };
 
 
