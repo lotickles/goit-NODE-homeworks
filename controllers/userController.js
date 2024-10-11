@@ -9,8 +9,9 @@ import path from "path";//for url path
 import {Jimp} from "jimp";//image processing and manipulation//resizing
 import fs from "fs/promises";
 import { nanoid } from "nanoid";
+import { sendEmail } from "../helpers/sendEmails.js";
 
-const {SECRET_KEY} = process.env;
+const {SECRET_KEY,PORT} = process.env;
 // Sign up User
 const signupUser =async(req,res)=>{
   try {

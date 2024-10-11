@@ -15,10 +15,10 @@ const nodemailerConfig = {
   },
 };
 
-// transporter object
+// transporter object 
 const transport = nodemailer.createTransport(nodemailerConfig);
 
-// transporter function
+// transporter function, to use this in userController, email verification
 const sendEmail = async (data) => {
   // we will pass the data including the subject, recipient and content inside a unified object which corresponds to the email
   const email = { ...data, from: GMAIL_EMAIL };
